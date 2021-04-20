@@ -5,15 +5,13 @@ const dbFunction = require('../database.js');
 const db = dbFunction();
 
 router.get('/', async (req, res) => {
-	const hamstersRef = db.collection('hamsters');
-	const snapshot = await hamstersRef.get();
+	const snapshot = await db.collection('hamsters').get();
 
 	let hamsters = [];
 	snapshot.forEach(docRef => {
 		const data = docRef.data();
 		hamsters.push(data);
 	});
-
 	res.send(hamsters);
 });
 
@@ -28,9 +26,7 @@ router.get('/:id', async (req, res) => {
 
 	const hamster = docRef.data();
 	res.send(hamster);
-})
-
-// TODO: Hämta en hamster med :id
+});
 
 router.post('/', async (req, res) => {
 	const object = req.body;
@@ -42,6 +38,16 @@ router.post('/', async (req, res) => {
 
 	const docRef = await db.collection('hamsters').add(object);
 	res.send(docRef.id);
+});
+
+router.post('/postmany', async (req, res) => {
+	const array = req.body;
+	
+	await array.forEach(hamster => {
+	db.collection('hamsters').add(hamster);
+	});
+
+	res.send("Dina hamstrar är tillagda");
 });
 
 router.put('/:id', async (req, res) => {
