@@ -21,6 +21,7 @@ router.get('/random', async (req, res) => {
 	let hamsters = [];
 	snapshot.forEach(docRef => {
 		const data = docRef.data();
+		data.firestoreId = docRef.id; // to access the firestore id
 		hamsters.push(data);
 	});
 
@@ -38,6 +39,7 @@ router.get('/:id', async (req, res) => {
 	}
 
 	const hamster = docRef.data();
+
 	res.send(hamster);
 });
 
@@ -74,7 +76,7 @@ router.put('/:id', async (req, res) => {
 
 	const docRef = db.collection('hamsters').doc(id);
 	await docRef.set(object, {merge: true});
-	res.status(200).send("Hamstern är ändrad! :D");
+	res.status(200).send("Hamstern är ändrad");
 });
 
 router.delete('/:id', async (req, res) => {
