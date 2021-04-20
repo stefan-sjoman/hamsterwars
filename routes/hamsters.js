@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
 	const object = req.body;
 
 	if (!isHamsterObject(object)) {
-		res.status(400).send("Något är fel med hamsterobjektet... :(");
+		res.status(400).send("Något är fel med hamsterobjektet.");
 		return;
 	}
 
@@ -36,12 +36,24 @@ router.put('/:id', async (req, res) => {
 	const id = req.params.id;
 
 	if (!object || !id) {
-		res.status(400).send("Något är fel med id eller ändringen... :(");
+		res.status(400).send("Något gick fel med id eller ändringen av hamstern.");
+		return;
 	}
 
 	const docRef = db.collection('hamsters').doc(id);
 	await docRef.set(object, {merge: true});
 	res.status(200).send("Hamstern är ändrad! :D");
+});
+
+router.delete('/:id', async (req, res) => {
+	const id = req.params.id;
+
+	if (!id) {
+		res.status(400).send("Du måste ange ett id");
+	}
+
+	await db.collection('hamsters').doc(id).delete();
+	res.status(200).send("Hamstern är borttagen.");
 })
 
 function isHamsterObject(object) {
