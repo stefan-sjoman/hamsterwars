@@ -15,6 +15,19 @@ router.get('/', async (req, res) => {
 	res.send(hamsters);
 });
 
+router.get('/random', async (req, res) => {
+	const snapshot = await db.collection('hamsters').get();
+
+	let hamsters = [];
+	snapshot.forEach(docRef => {
+		const data = docRef.data();
+		hamsters.push(data);
+	});
+
+	let randomIndex = Math.floor(Math.random() * (hamsters.length -1));
+	res.send(hamsters[randomIndex]);
+});
+
 router.get('/:id', async (req, res) => {
 	const id = req.params.id;
 	const docRef = await db.collection('hamsters').doc(id).get();
