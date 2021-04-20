@@ -17,4 +17,25 @@ router.get('/', async (req, res) => {
 	res.send(hamsters);
 });
 
+// TODO: Hämta en hamster med :id
+
+router.post('/', async (req, res) => {
+	const object = req.body;
+
+	if (!isHamsterObject(object)) {
+		res.status(400).send("Något gick fel... :(");
+		return;
+	}
+
+	const docRef = await db.collection('hamsters').add(object);
+	res.send(docRef.id);
+});
+
+function isHamsterObject(object) {
+	if (!object) {
+		return false;
+	}
+	return true;
+}
+
 module.exports = router;
