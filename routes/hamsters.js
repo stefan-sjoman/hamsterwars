@@ -48,13 +48,14 @@ router.get('/:id', async (req, res) => {
 	}
 	const docRef = await db.collection('hamsters').doc(id).get();
 	const hamster = docRef.data();
+	hamster.firestoreId = docRef.id;
 
 	res.status(200).send(hamster);
 });
 
 router.post('/', async (req, res) => {
 	const object = req.body;
-	const isObject = await checkObject(object);
+	const isObject = checkObject(object);
 	if (!isObject) {
 		res.status(400).send("Kontrollera hamsterobjektet du försöker lägga till");
 		return;
@@ -85,7 +86,7 @@ router.put('/:id', async (req, res) => {
 		res.status(404).send("Kontrollera ditt hamster id");
 		return;
 	}
-	const isObject = await checkObject(object);
+	const isObject = checkObject(object);
 	if (!isObject) {
 		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
 		return;
