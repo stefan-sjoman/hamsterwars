@@ -9,7 +9,7 @@ async function getHamsters() {
 	let hamsters = [];
 	snapshot.forEach(docRef => {
 		const data = docRef.data();
-		data.firestoreId = docRef.id; // to access the firestore id
+		data.firestoreId = docRef.id; // to save the firestore id
 		hamsters.push(data);
 	});
 	return hamsters;
@@ -43,7 +43,7 @@ router.get('/:id', async (req, res) => {
 	const isCorrectId = await checkId(id);
 
 	if (!isCorrectId) {
-		res.status(400).send("Kontrollera ditt hamster id");
+		res.status(404).send("Kontrollera ditt hamster id");
 		return;
 	}
 	const docRef = await db.collection('hamsters').doc(id).get();
@@ -82,7 +82,12 @@ router.put('/:id', async (req, res) => {
 	const id = req.params.id;
 	const isCorrectId = await checkId(id);
 	if (!isCorrectId) {
-		res.status(400).send("Kontrollera ditt hamster id");
+		res.status(404).send("Kontrollera ditt hamster id");
+		return;
+	}
+	const isObject = await checkObject(object);
+	if (!isObject) {
+		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
 		return;
 	}
 	const docRef = db.collection('hamsters').doc(id);
@@ -99,7 +104,7 @@ router.delete('/:id', async (req, res) => {
 	const id = req.params.id;
 	const isCorrectId = await checkId(id);
 	if (!isCorrectId) {
-		res.status(400).send("Kontrollera ditt hamster id");
+		res.status(404).send("Kontrollera ditt hamster id");
 		return;
 	}
 	await db.collection('hamsters').doc(id).delete();

@@ -7,6 +7,7 @@ const cors = require('cors');
 const path = require('path');
 
 const hamsters = require('./routes/hamsters.js');
+const matches = require('./routes/matches.js');
 
 // middleware
 app.use(cors());
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
 
 // routes
 app.use('/hamsters', hamsters);
+app.use('/matches', matches);
 
 // start server
 app.listen(PORT, () => {
