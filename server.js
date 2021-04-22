@@ -8,6 +8,9 @@ const path = require('path');
 
 const hamsters = require('./routes/hamsters.js');
 const matches = require('./routes/matches.js');
+const winners = require('./routes/winners.js');
+const losers = require('./routes/losers.js');
+const matchWinners = require('./routes/matchWinners.js');
 
 // middleware
 app.use(cors());
@@ -21,6 +24,9 @@ app.use((req, res, next) => {
 // routes
 app.use('/hamsters', hamsters);
 app.use('/matches', matches);
+app.use('/winners', winners);
+app.use('/losers', losers);
+app.use('/matchWinners', matchWinners);
 
 // start server
 app.listen(PORT, () => {
