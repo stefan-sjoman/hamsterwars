@@ -112,11 +112,15 @@ router.put('/:id', async (req, res) => {
 	const object = req.body;
 	const id = req.params.id;
 	const isCorrectId = await checkAndGet(id);
-	if (!isCorrectId) {
+	if (isCorrectId === 500) {
+		console.log(error);
+		res.status(500).send("Fel med databasen");
+		return;
+	}
+	if (isCorrectId === 404) {
 		res.status(404).send("Kontrollera ditt hamster id");
 		return;
 	}
-
 	const isObject = checkObject(object);
 	if (!isObject) {
 		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
@@ -141,7 +145,7 @@ router.delete('/:id', async (req, res) => {
 		return;
 	}
 	try {
-		await db.collection('hamster').doc(id).delete();
+		await db.collection('hamsters').doc(id).delete();
 		res.status(200).send("Hamstern är borttagen");
 	} catch (error) {
 		console.log(error);
