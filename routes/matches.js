@@ -54,8 +54,10 @@ router.post('/', async (req, res) => {
 		return;
 	}
 	const docRef = await db.collection('matches').add(object);
-
-	res.status(200).send(`Du har har lagt till en ny match med id: ${docRef.id}`);
+	const firestoreId = {
+		id: docRef.id
+	};
+	res.status(200).send(firestoreId);
 });
 
 router.delete('/', (req, res) => {

@@ -61,8 +61,10 @@ router.post('/', async (req, res) => {
 		return;
 	}
 	const docRef = await db.collection('hamsters').add(object);
-
-	res.status(200).send(`Du har lagt till en ny hamster med id: ${docRef.id}`);
+	const firestoreId = {
+		id: docRef.id
+	};
+	res.status(200).send(firestoreId);
 });
 
 router.post('/postmany', async (req, res) => {
