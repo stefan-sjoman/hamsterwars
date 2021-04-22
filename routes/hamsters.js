@@ -17,7 +17,6 @@ async function getHamsters() {
 
 async function checkId(inputId) {
 	const hamsters = await getHamsters();
-
 	return hamsters.find(hamster => hamster.firestoreId === inputId);
 }
 
@@ -27,14 +26,12 @@ async function checkObject(inputObject) {
 
 router.get('/', async (req, res) => {
 	const hamsters = await getHamsters();
-
 	res.status(200).send(hamsters);
 });
 
 router.get('/random', async (req, res) => {
 	const hamsters = await getHamsters();
 	let randomIndex = Math.floor(Math.random() * (hamsters.length -1));
-
 	res.status(200).send(hamsters[randomIndex]);
 });
 
@@ -88,11 +85,13 @@ router.put('/:id', async (req, res) => {
 		res.status(404).send("Kontrollera ditt hamster id");
 		return;
 	}
+
 	const isObject = checkObject(object);
 	if (!isObject) {
 		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
 		return;
 	}
+
 	const docRef = db.collection('hamsters').doc(id);
 	await docRef.set(object, {merge: true});
 
