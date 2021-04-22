@@ -5,10 +5,9 @@ const dbFunction = require('../database.js');
 const db = dbFunction();
 
 async function getMatches() {
-	let snapshot = null;
 	let matches = [];
 	try {
-		snapshot = await db.collection('matches').get();
+		const snapshot = await db.collection('matches').get();
 		snapshot.forEach(docRef => {
 			const data = docRef.data();
 			data.firestoreId = docRef.id;
@@ -60,7 +59,6 @@ router.get('/:id', async (req, res) => {
 		res.status(404).send("Kontrollera ditt match id");
 		return;
 	}
-
 	res.status(200).send(match);
 });
 
