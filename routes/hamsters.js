@@ -31,8 +31,8 @@ async function checkAndGet(inputId) {
 	return hamster;
 }
 
-async function checkObject(inputObject) {
-	return Object.keys(inputObject).length !== 0;
+function checkObject(inputObject) {
+	return Object.keys(inputObject).length === 0;
 }
 
 router.get('/', async (req, res) => {
@@ -74,7 +74,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
 	const object = req.body;
 	const isObject = checkObject(object);
-	if (!isObject) {
+	if (isObject) {
 		res.status(400).send("Kontrollera hamsterobjektet du försöker lägga till");
 		return;
 	}
@@ -107,10 +107,15 @@ router.put('/', (req, res) => {
 	res.status(400).send("Du måste ange ett id för att ändra en hamster");
 });
 
-// FIXA TRY CATCH !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 router.put('/:id', async (req, res) => {
 	const object = req.body;
 	const id = req.params.id;
+
+	const isObject = checkObject(object);
+	if (isObject) {
+		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
+		return;
+	}
 	const isCorrectId = await checkAndGet(id);
 	if (isCorrectId === 500) {
 		console.log(error);
@@ -119,11 +124,6 @@ router.put('/:id', async (req, res) => {
 	}
 	if (isCorrectId === 404) {
 		res.status(404).send("Kontrollera ditt hamster id");
-		return;
-	}
-	const isObject = checkObject(object);
-	if (!isObject) {
-		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
 		return;
 	}
 
