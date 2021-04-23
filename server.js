@@ -1,7 +1,7 @@
 // import packages & server config
 const express = require('express');
 const app = express();
-const PORT = 1337;
+const PORT = process.env.PORT || 1337;
 
 const cors = require('cors');
 const path = require('path');
