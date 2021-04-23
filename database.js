@@ -1,5 +1,6 @@
 const admin = require('firebase-admin');
-const privateKey = require('./private_key.json');
+//const privateKey = require('./private_key.json');
+const privateKey = "Harshada";
 
 admin.initializeApp({
 	credential: admin.credential.cert(privateKey)
