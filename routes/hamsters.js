@@ -10,7 +10,7 @@ async function getHamsters() {
 		const snapshot = await db.collection('hamsters').get();
 		snapshot.forEach(docRef => {
 			const data = docRef.data();
-			data.firestoreId = docRef.id; // for easy access of id
+			data.firestoreId = docRef.id;
 			hamsters.push(data);
 		});
 	} catch (error) {
@@ -31,8 +31,40 @@ async function checkAndGet(inputId) {
 	return hamster;
 }
 
-function checkObject(inputObject) {
-	return Object.keys(inputObject).length === 0;
+// function checkObject(inputObject) {
+// 	return Object.keys(inputObject).length === 0;
+// }
+
+function checkNewHamster(object) {
+	const keys = Object.keys(object);
+	if (keys.length === 0) {
+		return false;
+	}
+	const hamsterKeys = [
+		'age',
+		'defeats',
+		'favFood',
+		'games',
+		'imgName',
+		'loves',
+		'name',
+		'wins'
+	];
+
+	let controlledKeys = [];
+
+	hamsterKeys.forEach(hamsterKey => {
+		keys.forEach(key => {
+			if (key === hamsterKey) {
+				controlledKeys.push(key);
+			}
+		})
+	});
+	if (controlledKeys.length === keys.length && 
+		hamsterKeys.length === keys.length) {
+		return true;
+	}
+	return false;
 }
 
 router.get('/', async (req, res) => {
@@ -73,8 +105,8 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
 	const object = req.body;
-	const isObject = checkObject(object);
-	if (isObject) {
+	const isObject = checkNewHamster(object);
+	if (!isObject) {
 		res.status(400).send("Kontrollera hamsterobjektet du försöker lägga till");
 		return;
 	}
@@ -111,14 +143,12 @@ router.put('/:id', async (req, res) => {
 	const object = req.body;
 	const id = req.params.id;
 
-	const isObject = checkObject(object);
-	if (isObject) {
+	if (Object.keys(object).length === 0) {
 		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
 		return;
 	}
 	const isCorrectId = await checkAndGet(id);
 	if (isCorrectId === 500) {
-		console.log(error);
 		res.status(500).send("Fel med databasen");
 		return;
 	}
@@ -127,8 +157,13 @@ router.put('/:id', async (req, res) => {
 		return;
 	}
 
-	const docRef = db.collection('hamsters').doc(id);
-	await docRef.set(object, {merge: true});
+	try {
+		const docRef = db.collection('hamsters').doc(id);
+		await docRef.set(object, {merge: true});
+	} catch (error) {
+		res.status(500).send("Fel med databasen");
+		return;
+	}
 
 	res.status(200).send("Hamstern är ändrad");
 });
@@ -154,3 +189,4 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.functions = { getHamsters };
