@@ -4,27 +4,41 @@ const router = express.Router();
 const dbFunction = require('../database.js');
 const db = dbFunction();
 
-// async function getMatchWinners() {
-// 	const snapshot = await db.collection('matchWinners').get();
-// 	let matchWinners = [];
-// 	snapshot.forEach(docRef => {
-// 		const data = docRef.data();
-// 		data.firestoreId = docRef.id;
-// 		matchWinners.push(data);
-// 	});
-// 	return matchWinners;
-// }
+async function getMatches() {
+	let matches = [];
+	try {
+		const snapshot = await db.collection('matches').get();
+		snapshot.forEach(docRef => {
+			const data = docRef.data();
+			data.firestoreId = docRef.id;
+			matches.push(data);
+		});
+	} catch (error) {
+		return false;
+	}
+	return matches;
+}
 
 router.get('/', async (req, res) => {
-	// const matchWinners = await getMatchWinners();
-	const matchWinners = "DET HÄR ÄR MATCHWINNERS";
-	res.status(200).send(matchWinners);
+	res.status(400).send("Du måste ange ett ID på en hamster");
 });
 
 router.get('/:id', async (req, res) => {
-	// const matchWinners = await getMatchWinners();
-	const matchWinners = "DET HÄR ÄR MATCHWINNERS SÖKT MED ID";
-	res.status(200).send(matchWinners);
+	const id = req.params.id;
+	const matches = await getMatches();
+	let matchesWon = [];
+
+	matches.forEach(match => {
+		if (id === match.winnerId) {
+			matchesWon.push(match);
+		}
+	});
+	
+	if (matchesWon.length === 0){
+		res.status(404).send(`Hamstern ${id} har inte vunnit några matcher.`);
+		return;
+	}
+ 	res.status(200).send(matchesWon);
 });
 
 module.exports = router;

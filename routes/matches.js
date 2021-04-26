@@ -34,24 +34,21 @@ async function checkAndGet(inputId) {
 function checkObject(inputObject) {
 	const keys = Object.keys(inputObject);
 	const matchKeys = [
-		'id',
 		'loserId',
 		'winnerId'
 	];
 
-	if (keys.length == matchKeys.length) {
-		let controlledKeys = [];
+	let controlledKeys = [];
 
-		matchKeys.forEach(matchKey => {
-			keys.forEach(key => {
-				if (key == matchKey) {
-					controlledKeys.push(key);
-				}
-			})
-		});
-		if (controlledKeys.length == keys.length) {
-			return true;
-		}
+	matchKeys.forEach(matchKey => {
+		keys.forEach(key => {
+			if (key === matchKey) {
+				controlledKeys.push(key);
+			}
+		})
+	});
+	if (controlledKeys.length === keys.length) {
+		return true;
 	}
 	return false;
 }
@@ -85,7 +82,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
 	const object = req.body;
 	const isObject = checkObject(object);
-	console.log(`isobject ${isObject}`)
+	console.log(`isobject ${isObject}`);
 	if (!isObject) {
 		res.status(400).send("Kontrollera matchobjektet du försöker lägga till");
 		return;
