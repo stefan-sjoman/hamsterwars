@@ -4,6 +4,8 @@ const router = express.Router();
 const dbFunction = require('../database.js');
 const db = dbFunction();
 
+const checkInputs = require('./checkInputs.js').checkInputs;
+
 async function getHamsters() {
 	let hamsters = [];
 	try {
@@ -22,24 +24,16 @@ async function getHamsters() {
 async function checkAndGet(inputId) {
 	const hamsters = await getHamsters();
 	if (!hamsters) {
-		return 500; //Internal Server Error.
+		return 500;
 	}
 	const hamster = hamsters.find(hamsterItem => hamsterItem.firestoreId === inputId);
 	if (!hamster) {
-		return 404; //Id does not exist.
+		return 404;
 	}
 	return hamster;
 }
 
-// function checkObject(inputObject) {
-// 	return Object.keys(inputObject).length === 0;
-// }
-
 function checkNewHamster(object) {
-	const keys = Object.keys(object);
-	if (keys.length === 0) {
-		return false;
-	}
 	const hamsterKeys = [
 		'age',
 		'defeats',
@@ -50,21 +44,7 @@ function checkNewHamster(object) {
 		'name',
 		'wins'
 	];
-
-	let controlledKeys = [];
-
-	hamsterKeys.forEach(hamsterKey => {
-		keys.forEach(key => {
-			if (key === hamsterKey) {
-				controlledKeys.push(key);
-			}
-		})
-	});
-	if (controlledKeys.length === keys.length && 
-		hamsterKeys.length === keys.length) {
-		return true;
-	}
-	return false;
+return checkInputs.checkNewObject(object, hamsterKeys);
 }
 
 router.get('/', async (req, res) => {
@@ -105,8 +85,8 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
 	const object = req.body;
-	const isObject = checkNewHamster(object);
-	if (!isObject) {
+	const isCorrect = checkNewHamster(object);
+	if (!isCorrect) {
 		res.status(400).send("Kontrollera hamsterobjektet du försöker lägga till");
 		return;
 	}

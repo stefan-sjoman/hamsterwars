@@ -4,6 +4,8 @@ const router = express.Router();
 const dbFunction = require('../database.js');
 const db = dbFunction();
 
+const checkInputs = require('./checkInputs.js').checkInputs;
+
 async function getMatches() {
 	let matches = [];
 	try {
@@ -22,38 +24,21 @@ async function getMatches() {
 async function checkAndGet(inputId) {
 	const matches = await getMatches();
 	if (!matches) {
-		return 500; //Internal Server Error.
+		return 500;
 	}
 	const match = matches.find(matchItem => matchItem.firestoreId === inputId);
 	if (!match) {
-		return 404; //Id does not exist.
+		return 404;
 	}
 	return match;
 }
 
-function checkNewMatch(inputObject) {
-	const keys = Object.keys(inputObject);
-	if (keys.length === 0) {
-		return false;
-	}
-	const matchKeys = [
+function checkNewMatch(object) {
+		const matchKeys = [
 		'loserId',
 		'winnerId'
 	];
-	let controlledKeys = [];
-
-	matchKeys.forEach(matchKey => {
-		keys.forEach(key => {
-			if (key === matchKey) {
-				controlledKeys.push(key);
-			}
-		})
-	});
-	if (controlledKeys.length === keys.length && 
-		matchKeys.length === keys.length) {
-		return true;
-	}
-	return false;
+	return checkInputs.checkNewObject(object, matchKeys);
 }
 
 router.get('/', async (req, res) => {
