@@ -4,51 +4,27 @@ const router = express.Router();
 const dbFunction = require('../database.js');
 const db = dbFunction();
 
-const checkInputs = require('./checkInputs.js').checkInputs;
+const checkInputs = require('./checkInput.js').checkInputs;
+const requests = require('./requests.js').requests;
 
-async function getHamsters() {
-	let hamsters = [];
-	try {
-		const snapshot = await db.collection('hamsters').get();
-		snapshot.forEach(docRef => {
-			const data = docRef.data();
-			data.firestoreId = docRef.id;
-			hamsters.push(data);
-		});
-	} catch (error) {
-		return false;
-	}
-	return hamsters;
-}
-
-async function checkAndGet(inputId) {
-	const hamsters = await getHamsters();
-	if (!hamsters) {
-		return 500;
-	}
-	const hamster = hamsters.find(hamsterItem => hamsterItem.firestoreId === inputId);
-	if (!hamster) {
-		return 404;
-	}
-	return hamster;
-}
+const COLLECTION_NAME = 'hamsters';
+const hamsterKeys = [
+	'age',
+	'defeats',
+	'favFood',
+	'games',
+	'imgName',
+	'loves',
+	'name',
+	'wins'
+];
 
 function checkNewHamster(object) {
-	const hamsterKeys = [
-		'age',
-		'defeats',
-		'favFood',
-		'games',
-		'imgName',
-		'loves',
-		'name',
-		'wins'
-	];
 return checkInputs.checkNewObject(object, hamsterKeys);
 }
 
 router.get('/', async (req, res) => {
-	const hamsters = await getHamsters();
+	const hamsters = await requests.getRequest(COLLECTION_NAME);
 	if (!hamsters) {
 		console.log(error);
 		res.status(500).send("Fel med databasen");
@@ -58,7 +34,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/random', async (req, res) => {
-	const hamsters = await getHamsters();
+	const hamsters = await requests.getRequest(COLLECTION_NAME);
 	if (!hamsters) {
 		console.log(error);
 		res.status(500).send("Fel med databasen");
@@ -70,7 +46,7 @@ router.get('/random', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
 	const id = req.params.id;
-	const hamster = await checkAndGet(id);
+	const hamster = await requests.getWithId(COLLECTION_NAME, id);
 	if (hamster === 500) {
 		console.log(error);
 		res.status(500).send("Fel med databasen");
@@ -91,7 +67,7 @@ router.post('/', async (req, res) => {
 		return;
 	}
 	try {
-		const docRef = await db.collection('hamsters').add(object);
+		const docRef = await db.collection(COLLECTION_NAME).add(object);
 		const firestoreId = {
 			id: docRef.id
 		};
@@ -106,7 +82,7 @@ router.post('/postmany', async (req, res) => {
 	const array = req.body;
 	try {
 		await array.forEach(hamster => {
-			db.collection('hamsters').add(hamster);
+			db.collection(COLLECTION_NAME).add(hamster);
 		});
 		res.status(200).send("Dina hamstrar är tillagda");
 	} catch (error) {
@@ -123,11 +99,35 @@ router.put('/:id', async (req, res) => {
 	const object = req.body;
 	const id = req.params.id;
 
-	if (Object.keys(object).length === 0) {
-		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
-		return;
+	let isObject;
+
+	const keys = Object.keys(object);
+	if (keys.length === 0) {
+		return false;
 	}
-	const isCorrectId = await checkAndGet(id);
+
+	let controlledKeys = [];
+
+	hamsterKeys.forEach(hamsterKey => {
+		keys.forEach(key => {
+			if (key === hamsterKey) {
+				controlledKeys.push(key);
+			}
+		})
+	});
+	if (controlledKeys.length === keys.length) {
+		isObject = true;
+	}
+	else {
+		isObject = false;
+	}
+	
+	if (!isObject) {
+		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
+		return
+	}
+	
+	const isCorrectId = await requests.getWithId(COLLECTION_NAME, id);
 	if (isCorrectId === 500) {
 		res.status(500).send("Fel med databasen");
 		return;
@@ -138,7 +138,7 @@ router.put('/:id', async (req, res) => {
 	}
 
 	try {
-		const docRef = db.collection('hamsters').doc(id);
+		const docRef = db.collection(COLLECTION_NAME).doc(id);
 		await docRef.set(object, {merge: true});
 	} catch (error) {
 		res.status(500).send("Fel med databasen");
@@ -154,13 +154,13 @@ router.delete('/', (req, res) => {
 
 router.delete('/:id', async (req, res) => {
 	const id = req.params.id;
-	const isCorrectId = await checkAndGet(id);
+	const isCorrectId = await requests.getWithId(COLLECTION_NAME, id);
 	if (isCorrectId === 404) {
 		res.status(404).send("Kontrollera ditt hamster id");
 		return;
 	}
 	try {
-		await db.collection('hamsters').doc(id).delete();
+		await db.collection(COLLECTION_NAME).doc(id).delete();
 		res.status(200).send("Hamstern är borttagen");
 	} catch (error) {
 		console.log(error);
@@ -169,4 +169,3 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
-module.exports.functions = { getHamsters };

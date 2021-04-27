@@ -4,34 +4,10 @@ const router = express.Router();
 const dbFunction = require('../database.js');
 const db = dbFunction();
 
-const checkInputs = require('./checkInputs.js').checkInputs;
+const checkInputs = require('./checkInput.js').checkInputs;
+const requests = require('./requests.js').requests;
 
-async function getMatches() {
-	let matches = [];
-	try {
-		const snapshot = await db.collection('matches').get();
-		snapshot.forEach(docRef => {
-			const data = docRef.data();
-			data.firestoreId = docRef.id;
-			matches.push(data);
-		});		
-	} catch (error) {
-		return false;
-	}
-	return matches;
-}
-
-async function checkAndGet(inputId) {
-	const matches = await getMatches();
-	if (!matches) {
-		return 500;
-	}
-	const match = matches.find(matchItem => matchItem.firestoreId === inputId);
-	if (!match) {
-		return 404;
-	}
-	return match;
-}
+const COLLECTION_NAME = 'matches';
 
 function checkNewMatch(object) {
 		const matchKeys = [
@@ -42,7 +18,7 @@ function checkNewMatch(object) {
 }
 
 router.get('/', async (req, res) => {
-	const matches = await getMatches();
+	const matches = await requests.getRequest(COLLECTION_NAME);
 	if (!matches) {
 		console.log(error);
 		res.status(500).send("Fel med databasen");
@@ -54,7 +30,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
 	const id = req.params.id;
-	const match = await checkAndGet(id);
+	const match = await requests.getWithId(COLLECTION_NAME, id);
 	if (match === 500) {
 		console.log(error);
 		res.status(500).send("Fel med databasen");
@@ -70,13 +46,12 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
 	const object = req.body;
 	const isObject = checkNewMatch(object);
-	console.log(`isobject ${isObject}`);
 	if (!isObject) {
 		res.status(400).send("Kontrollera matchobjektet du försöker lägga till");
 		return;
 	}
 	try {
-		const docRef = await db.collection('matches').add(object);
+		const docRef = await db.collection(COLLECTION_NAME).add(object);
 		const firestoreId = {
 			id: docRef.id
 		};
@@ -94,13 +69,13 @@ router.delete('/', (req, res) => {
 
 router.delete('/:id', async (req, res) => {
 	const id = req.params.id;
-	const isCorrectId = await checkAndGet(id);
+	const isCorrectId = await requests.getWithId(COLLECTION_NAME, id);
 	if (isCorrectId === 404) {
 		res.status(404).send("Kontrollera ditt match id");
 		return;
 	}
 	try {
-		await db.collection('matches').doc(id).delete();
+		await db.collection(COLLECTION_NAME).doc(id).delete();
 		res.status(200).send("Matchen är borttagen");
 	} catch (error) {
 		console.log(error);
