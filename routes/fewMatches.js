@@ -14,16 +14,15 @@ router.get('/', async (req, res) => {
 	hamsters.sort(function (a, b) {
 		return a.games - b.games;
 	});
-	hamsters.reverse();
 
-	let manyMatches = []
+	let fewMatches = []
 	let i = 0;
 	do {
-		manyMatches.push(hamsters[i].firestoreId);
+		fewMatches.push(hamsters[i].firestoreId);
 		i++;
 	} while (hamsters[i-1].games === hamsters[i].games)
 
-	res.status(200).send(manyMatches);
+	res.status(200).send(fewMatches);
 
 });
 
