@@ -14,6 +14,7 @@ const matchWinners = require('./routes/matchWinners.js');
 const defeated = require('./routes/defeated.js');
 const manyMatches = require('./routes/manyMatches.js');
 const fewMatches = require('./routes/fewMatches.js');
+const score = require('./routes/score.js');
 
 // middleware
 app.use(cors());
@@ -36,6 +37,7 @@ app.use('/matchWinners', matchWinners);
 app.use('/defeated', defeated);
 app.use('/manyMatches', manyMatches);
 app.use('/fewMatches', fewMatches);
+app.use('/score', score);
 
 // start server
 app.listen(PORT, () => {
