@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 
 const requests = require('./requests.js').requests;
-
 const COLLECTION_NAME = 'hamsters';
 
 router.get('/', async (req, res) => {

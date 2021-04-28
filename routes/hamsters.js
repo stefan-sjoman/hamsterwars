@@ -99,29 +99,7 @@ router.put('/:id', async (req, res) => {
 	const object = req.body;
 	const id = req.params.id;
 
-	let isObject;
-
-	const keys = Object.keys(object);
-	if (keys.length === 0) {
-		return false;
-	}
-
-	let controlledKeys = [];
-
-	hamsterKeys.forEach(hamsterKey => {
-		keys.forEach(key => {
-			if (key === hamsterKey) {
-				controlledKeys.push(key);
-			}
-		})
-	});
-	if (controlledKeys.length === keys.length) {
-		isObject = true;
-	}
-	else {
-		isObject = false;
-	}
-	
+	let isObject = checkInputs.checkChange(object, hamsterKeys);
 	if (!isObject) {
 		res.status(400).send("Kontrollera hamsterobjektet du försöker ändra");
 		return
