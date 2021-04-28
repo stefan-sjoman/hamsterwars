@@ -19,7 +19,7 @@ async function getMatches() {
 	return matches;
 }
 
-router.get('/', async (req, res) => {
+router.get('/', (req, res) => {
 	res.status(400).send("Du måste ange ett ID på en hamster");
 });
 

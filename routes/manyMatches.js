@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 	});
 	hamsters.reverse();
 
-	let manyMatches = []
+	let manyMatches = [];
 	let i = 0;
 	do {
 		manyMatches.push(hamsters[i].firestoreId);
@@ -24,7 +24,6 @@ router.get('/', async (req, res) => {
 	} while (hamsters[i-1].games === hamsters[i].games)
 
 	res.status(200).send(manyMatches);
-
 });
 
 module.exports = router;

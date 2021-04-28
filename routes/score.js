@@ -6,11 +6,11 @@ const db = dbFunction();
 
 const requests = require('./requests.js').requests;
 
-router.get('/', async (req, res) => {
+router.get('/', (req, res) => {
 	res.status(400).send("Du måste ange ID på hamstrarna");
 });
 
-router.get('/:challenger', async (req, res) => {
+router.get('/:challenger', (req, res) => {
 	res.status(400).send("Du måste ange ett ID på motståndaren");
 });
 
@@ -19,6 +19,18 @@ router.get('/:challenger/:defender', async (req, res) => {
 	let challengerWins = 0;
 	let defender = req.params.defender;
 	let defenderWins = 0;
+
+	let correctChallenger = await requests.getWithId('hamsters', challenger);
+	let correctDefender = await requests.getWithId('hamsters', defender);
+
+	if (correctChallenger === 500 || correctDefender === 500) {
+		res.status(500).send("Fel med databasen");
+		return;
+	}
+	if (correctChallenger === 404 || correctDefender === 404) {
+		res.status(404).send("Kontrollera dina hamster id");
+		return;
+	}
 
 	const matches = await requests.getRequest('matches');
 	if (!matches) {
