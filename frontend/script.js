@@ -1,10 +1,5 @@
-let url;
 
-try {
-	url = 'http://localhost:1337/hamsters';
-} catch (error) {
-	url = 'https://sjoman-hamsterwars.herokuapp.com/hamsters';
-}
+const url = 'https://sjoman-hamsterwars.herokuapp.com/hamsters';
 
 getData(url, showHamsters);
 
